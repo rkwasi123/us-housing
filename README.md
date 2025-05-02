@@ -135,7 +135,6 @@ Identify records with zero or null ALand values:
 
 ```
 sql
-Copy
 SELECT State_Name, ALand, AWater
 FROM us_project.us_household_income
 WHERE ALand = 0 OR ALand = '' OR ALand IS NULL;
