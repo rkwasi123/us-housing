@@ -1,85 +1,97 @@
-SQL Operations on us_project.us_household_income Database
-This document provides a detailed explanation of the SQL operations performed on the us_project.us_household_income and us_project.us_household_income_statistics tables. These operations include selecting data, identifying duplicates, deleting records, updating values, and more.
+# 🏠 US Household Income Data Cleaning Project
+This project involves comprehensive SQL operations on the us_project.us_household_income and us_project.us_household_income_statistics tables. It focuses on cleaning and preparing the data for meaningful analysis by removing duplicates, correcting values, renaming columns, and handling inconsistencies.
 
-Table of Contents
-Database Selection Queries
-Renaming Columns
-Record Counting
-Identifying Duplicates
-Removing Duplicates
-Distinct Values Query
-Updating Records
-Data Filtering and Sorting
-Record Grouping
-Handling NULL and Zero Values
+## 📚 Table of Contents
+## 📂 Database Selection
 
+📝 Renaming Columns
 
-1. Database Selection Queries
-#Fetch all records from us_household_income and us_household_income_statistics:
+🔢 Record Counting
 
-SELECT * 
-FROM us_project.us_household_income;
+🧬 Identifying Duplicates
 
-SELECT * 
-FROM us_project.us_household_income_statistics;
+❌ Removing Duplicates
 
-2. Renaming Columns
-#The column ï»¿id in us_household_income_statistics is renamed to id:
+🔍 Distinct Values Query
 
+✏️ Updating Records
+
+🔎 Data Filtering and Sorting
+
+📊 Record Grouping
+
+⚠️ Handling NULL and Zero Values
+
+🧾 Notes
+
+📂 Database Selection
+Fetch all records from the primary and statistics tables:
+
+```
+sql
+SELECT * FROM us_project.us_household_income;
+SELECT * FROM us_project.us_household_income_statistics;
+```
+##📝 Renaming Columns
+Fix column name encoding issues:
+```
+sql
 ALTER TABLE us_project.us_household_income_statistics 
-RENAME COLUMN `ï»¿id` TO `id`;
-
-3. Record Counting
-#Count the total number of records in both tables:
-
-SELECT COUNT(id)
-FROM us_project.us_household_income;
-
-SELECT COUNT(id)
-FROM us_project.us_household_income_statistics;
-
-4. Identifying Duplicates
-#Identify duplicate records in the us_household_income table based on id:
-
+RENAME COLUMN ï»¿id TO id;
+```
+🔢 Record Counting
+Total number of records in each table:
+```
+sql
+SELECT COUNT(id) FROM us_project.us_household_income;
+SELECT COUNT(id) FROM us_project.us_household_income_statistics;
+```
+🧬 Identifying Duplicates
+Check for duplicate IDs:
+```
+sql
 SELECT id, COUNT(id)
 FROM us_project.us_household_income
 GROUP BY id
 HAVING COUNT(id) > 1;
-
-#Select all duplicate records by using a window function with ROW_NUMBER:
+Using window function to list duplicates:
 
 sql
-Copy code
 SELECT *
 FROM (
-    SELECT row_id, id, ROW_NUMBER() OVER (PARTITION BY id ORDER BY id) row_num
-    FROM us_project.us_household_income
+  SELECT row_id, id, 
+         ROW_NUMBER() OVER (PARTITION BY id ORDER BY id) AS row_num
+  FROM us_project.us_household_income
 ) duplicates
 WHERE row_num > 1;
-
-5. Removing Duplicates
-#Remove duplicate records from us_household_income based on the row_id:
-
+```
+❌ Removing Duplicates
+Remove duplicates based on row_id:
+```
+sql
 DELETE FROM us_household_income
 WHERE row_id IN (
-    SELECT row_id
-    FROM (
-        SELECT row_id, id, ROW_NUMBER() OVER (PARTITION BY id ORDER BY id) row_num
-        FROM us_project.us_household_income
-    ) duplicates
-    WHERE row_num > 1
+  SELECT row_id
+  FROM (
+    SELECT row_id, id,
+           ROW_NUMBER() OVER (PARTITION BY id ORDER BY id) AS row_num
+    FROM us_project.us_household_income
+  ) duplicates
+  WHERE row_num > 1
 );
-
-6. Distinct Values Query
-#Fetch a distinct list of state names from us_household_income:
-
+```
+🔍 Distinct Values Query
+Fetch unique state names:
+```
+sql
 SELECT DISTINCT State_Name
 FROM us_project.us_household_income
 ORDER BY 1;
-
-7. Updating Records
-#Update state names where there are discrepancies in the case:
-
+```
+✏️ Updating Records
+Correct state names:
+```
+sql
 UPDATE us_project.us_household_income
 SET State_Name = 'Georgia'
 WHERE State_Name = 'georia';
@@ -87,44 +99,51 @@ WHERE State_Name = 'georia';
 UPDATE us_project.us_household_income
 SET State_Name = 'Alabama'
 WHERE State_Name = 'alabama';
+Correct place names based on city and county:
 
-#Update incorrect place names based on the county and city:
-
+sql
 UPDATE us_household_income
 SET Place = 'Autaugaville'
-WHERE County = 'Autauga County'
-AND City = 'Vinemont';
-
-Data Filtering and Sorting
-#Select records from us_household_income where the county is Autauga County and order them:
-
+WHERE County = 'Autauga County' AND City = 'Vinemont';
+```
+🔎 Data Filtering and Sorting
+Filter and order records by county:
+```
+sql
 SELECT *
 FROM us_project.us_household_income
 WHERE County = 'Autauga County'
 ORDER BY 1;
-
-9. Record Grouping
-#Group records by Type and count the number of occurrences:
-
+```
+📊 Record Grouping
+Group and count by place Type:
+```
+sql
 SELECT Type, COUNT(Type)
 FROM us_project.us_household_income
 GROUP BY Type;
-
-#Correct the Type values to maintain consistency:
-
+```
+Standardize values in the Type column:
+```
+sql
 UPDATE us_household_income
 SET Type = 'Borough'
 WHERE Type = 'Boroughs';
+```
+⚠️ Handling NULL and Zero Values
+Identify records with zero or null ALand values:
 
-10. Handling NULL and Zero Values
-#Select records where ALand is either 0, empty, or NULL:
-
+```
+sql
+Copy
 SELECT State_Name, ALand, AWater
 FROM us_project.us_household_income
-WHERE (ALand = 0 OR ALand = '' OR ALand IS NULL);
+WHERE ALand = 0 OR ALand = '' OR ALand IS NULL;
+```
 
-Notes:
-The above SQL queries aim to clean and organize data in the us_project.us_household_income and us_project.us_household_income_statistics tables.
-Duplicate records are handled by identifying and removing them.
-Updates focus on correcting discrepancies in values, particularly state names and place information.
-Grouping and counting operations help analyze the distribution of data types.
+##🧾 Notes
+This data cleaning process ensures consistency and accuracy in the dataset.
+
+Redundant records are eliminated, and inconsistencies in naming are corrected.
+
+The dataset is now ready for reliable analytical tasks and visualization efforts.
