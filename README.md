@@ -54,8 +54,9 @@ SELECT id, COUNT(id)
 FROM us_project.us_household_income
 GROUP BY id
 HAVING COUNT(id) > 1;
-Using window function to list duplicates:
-
+```
+## Using window function to list duplicates:
+```
 sql
 SELECT *
 FROM (
